@@ -1,15 +1,22 @@
+// Module-level speech utterance tracker to prevent garbage collection and ReferenceError
+let _currentUtterance = null;
+
 /**
  * Speak text aloud using browser's native SpeechSynthesis
  */
 export const speakText = (text, lang = "mr", onStart, onEnd, onError) => {
-  if (!("speechSynthesis" in window)) {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) {
     console.warn("Speech synthesis not supported in this browser.");
     if (onError) onError("Speech synthesis not supported");
     return;
   }
 
   // Cancel any ongoing speech
-  window.speechSynthesis.cancel();
+  try {
+    window.speechSynthesis.cancel();
+  } catch (err) {
+    console.warn("Cancel speech error:", err);
+  }
 
   // Strip markdown formatting like **bold** or bullet symbols before speaking
   const cleanText = text
@@ -21,7 +28,7 @@ export const speakText = (text, lang = "mr", onStart, onEnd, onError) => {
   if (!cleanText) return;
 
   const utterance = new SpeechSynthesisUtterance(cleanText);
-  currentUtterance = utterance;
+  _currentUtterance = utterance;
 
   // Language mapping
   const langMap = {
@@ -58,14 +65,19 @@ export const speakText = (text, lang = "mr", onStart, onEnd, onError) => {
     };
 
     utterance.onend = () => {
+      currentUtterance = null;
       if (onEnd) onEnd();
     };
 
     utterance.onerror = (e) => {
+      _currentUtterance = null;
       console.warn("Speech synthesis error:", e);
       if (onError) onError(e);
     };
 
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
     window.speechSynthesis.speak(utterance);
   };
 
@@ -83,6 +95,7 @@ export const speakText = (text, lang = "mr", onStart, onEnd, onError) => {
  * Stop any current read-aloud speech
  */
 export const stopSpeaking = () => {
+  _currentUtterance = null;
   if ("speechSynthesis" in window) {
     window.speechSynthesis.cancel();
   }

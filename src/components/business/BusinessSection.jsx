@@ -14,19 +14,55 @@ export const BusinessSection = ({ searchQuery = "" }) => {
     { id: "all", label: t("ideaFilterAll") },
     { id: "low", label: t("ideaFilterLow") },
     { id: "mid", label: t("ideaFilterMid") },
-    { id: "high", label: t("ideaFilterHigh") }
+    { id: "high", label: t("ideaFilterHigh") },
+    { id: "agri", label: "🌾 कृषी उद्योग" },
+    { id: "home", label: "🏡 गृहउद्योग" },
+    { id: "digital", label: "💻 डिजिटल सेवा" },
+    { id: "local", label: "🪵 स्थानिक संपत्ती" }
   ];
 
   const filteredIdeas = useMemo(() => {
     return businessIdeasData.filter((idea) => {
-      const matchesCategory = activeCategory === "all" || idea.category === activeCategory;
+      let matchesCategory = true;
+      if (activeCategory === "low") {
+        matchesCategory =
+          (idea.investmentVal && idea.investmentVal <= 50000) ||
+          idea.category === "low" ||
+          (idea.investment && (idea.investment.includes("३०,०००") || idea.investment.includes("४०,०००") || idea.investment.includes("५०,०००")));
+      } else if (activeCategory === "mid") {
+        matchesCategory =
+          (idea.investmentVal && idea.investmentVal > 50000 && idea.investmentVal <= 200000) ||
+          idea.category === "mid" ||
+          (idea.investment && (idea.investment.includes("१ लाख") || idea.investment.includes("१.५ लाख") || idea.investment.includes("२ लाख")));
+      } else if (activeCategory === "high") {
+        matchesCategory =
+          (idea.investmentVal && idea.investmentVal > 200000) ||
+          idea.category === "high" ||
+          (idea.investment && (idea.investment.includes("२.५ लाख") || idea.investment.includes("३ लाख") || idea.investment.includes("५ लाख")));
+      } else if (activeCategory !== "all") {
+        matchesCategory = idea.category === activeCategory;
+      }
 
       if (!searchQuery.trim()) return matchesCategory;
 
       const q = searchQuery.toLowerCase();
-      const title = (idea.titles[language] || idea.titles.mr).toLowerCase();
-      const tagline = (idea.tagline[language] || idea.tagline.mr).toLowerCase();
-      const overview = (idea.overview[language] || idea.overview.mr).toLowerCase();
+      const title = (
+        (typeof idea.titles === "object" && idea.titles ? (idea.titles[language] || idea.titles.mr || idea.titles.en) : null) ||
+        idea.title ||
+        ""
+      ).toLowerCase();
+
+      const tagline = (
+        (typeof idea.tagline === "object" && idea.tagline ? (idea.tagline[language] || idea.tagline.mr || idea.tagline.en) : null) ||
+        (typeof idea.tagline === "string" ? idea.tagline : "") ||
+        ""
+      ).toLowerCase();
+
+      const overview = (
+        (typeof idea.overview === "object" && idea.overview ? (idea.overview[language] || idea.overview.mr || idea.overview.en) : null) ||
+        (typeof idea.overview === "string" ? idea.overview : "") ||
+        ""
+      ).toLowerCase();
 
       const matchesSearch = title.includes(q) || tagline.includes(q) || overview.includes(q);
       return matchesCategory && matchesSearch;

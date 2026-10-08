@@ -1682,3 +1682,39 @@ body {
   }
 }
 
+/* ==========================================================================
+   Print Stylesheet for Checklists & Invoices
+   ========================================================================== */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .navbar,
+  .floating-assistant-btn,
+  .app-footer,
+  .filter-bar,
+  .hero-section,
+  .modal-close-btn,
+  .modal-footer,
+  .audio-read-btn,
+  .icon-action-btn {
+    display: none !important;
+  }
+  .modal-overlay {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+  }
+  .modal-container {
+    max-width: 100% !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+  .modal-body {
+    padding: 0 !important;
+  }
+}
+

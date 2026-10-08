@@ -12,6 +12,23 @@ export const EligibilityQuizModal = ({ isOpen, onClose, onSelectScheme }) => {
   const [step3Category, setStep3Category] = useState("women");
   const [matchingSchemes, setMatchingSchemes] = useState(null);
 
+  const getSchemeTitle = (sch) => {
+    return (
+      (typeof sch?.names === "object" && sch?.names ? (sch.names[language] || sch.names.mr || sch.names.en) : null) ||
+      (language === "en" ? sch?.name : sch?.nativeName) ||
+      sch?.nativeName ||
+      sch?.name ||
+      "शासकीय योजना"
+    );
+  };
+
+  const getSchemeSubsidy = (sch) => {
+    return (
+      (typeof sch?.subsidy === "object" && sch?.subsidy ? (sch.subsidy[language] || sch.subsidy.mr || sch.subsidy.en) : sch?.subsidy) ||
+      (Array.isArray(sch?.benefits) ? sch.benefits[0] : "थेट शासकीय अनुदान")
+    );
+  };
+
   const handleCalculateMatch = () => {
     // Logic to find best matching schemes
     let matches = [];
@@ -19,17 +36,21 @@ export const EligibilityQuizModal = ({ isOpen, onClose, onSelectScheme }) => {
     if (step3Category === "women" || step1Type === "shg") {
       matches.push(schemesData.find(s => s.id === "umed-shg"));
       matches.push(schemesData.find(s => s.id === "pmegp"));
+      matches.push(schemesData.find(s => s.id === "livestock"));
     } else if (step1Type === "agri") {
       matches.push(schemesData.find(s => s.id === "cmegp"));
       matches.push(schemesData.find(s => s.id === "nabard-agri"));
+      matches.push(schemesData.find(s => s.id === "livestock"));
       matches.push(schemesData.find(s => s.id === "annasaheb-patil"));
     } else if (step2Capital === "low") {
       matches.push(schemesData.find(s => s.id === "mudra"));
       matches.push(schemesData.find(s => s.id === "annasaheb-patil"));
+      matches.push(schemesData.find(s => s.id === "cmegp"));
     } else {
       matches.push(schemesData.find(s => s.id === "pmegp"));
       matches.push(schemesData.find(s => s.id === "cmegp"));
       matches.push(schemesData.find(s => s.id === "annasaheb-patil"));
+      matches.push(schemesData.find(s => s.id === "msme-edp"));
     }
 
     // Filter out undefined and duplicates
@@ -211,10 +232,10 @@ export const EligibilityQuizModal = ({ isOpen, onClose, onSelectScheme }) => {
               >
                 <div>
                   <h4 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-main)" }}>
-                    {sch.names[language] || sch.names.mr}
+                    {getSchemeTitle(sch)}
                   </h4>
                   <p style={{ fontSize: "0.85rem", color: "var(--secondary-dark)", fontWeight: 600, marginTop: "2px" }}>
-                    🎁 {sch.subsidy[language] || sch.subsidy.mr}
+                    🎁 {getSchemeSubsidy(sch)}
                   </p>
                 </div>
                 <button

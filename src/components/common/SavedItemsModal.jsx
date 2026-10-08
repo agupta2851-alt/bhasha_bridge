@@ -13,6 +13,39 @@ export const SavedItemsModal = ({ isOpen, onClose, onSelectScheme, onSelectIdea 
   const savedSchemesList = schemesData.filter((s) => savedSchemes.includes(s.id));
   const savedIdeasList = businessIdeasData.filter((i) => savedIdeas.includes(i.id));
 
+  const getSchemeTitle = (scheme) => {
+    return (
+      (typeof scheme.names === "object" && scheme.names ? (scheme.names[language] || scheme.names.mr || scheme.names.en) : null) ||
+      (language === "en" ? scheme.name : scheme.nativeName) ||
+      scheme.nativeName ||
+      scheme.name ||
+      "शासकीय योजना"
+    );
+  };
+
+  const getSchemeSubsidy = (scheme) => {
+    return (
+      (typeof scheme.subsidy === "object" && scheme.subsidy ? (scheme.subsidy[language] || scheme.subsidy.mr || scheme.subsidy.en) : scheme.subsidy) ||
+      (Array.isArray(scheme.benefits) ? scheme.benefits[0] : "थेट शासकीय अनुदान")
+    );
+  };
+
+  const getIdeaTitle = (idea) => {
+    return (
+      (typeof idea.titles === "object" && idea.titles ? (idea.titles[language] || idea.titles.mr || idea.titles.en) : null) ||
+      idea.title ||
+      ""
+    );
+  };
+
+  const getIdeaInvestment = (idea) => {
+    return idea.investmentRange || idea.investment || "";
+  };
+
+  const getIdeaProfit = (idea) => {
+    return idea.expectedMonthlyProfit || idea.expectedProfit || "";
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -61,10 +94,10 @@ export const SavedItemsModal = ({ isOpen, onClose, onSelectScheme, onSelectIdea 
               >
                 <div>
                   <h5 style={{ fontSize: "1rem", fontWeight: 700 }}>
-                    {scheme.names[language] || scheme.names.mr}
+                    {getSchemeTitle(scheme)}
                   </h5>
                   <span style={{ fontSize: "0.85rem", color: "var(--secondary-dark)", fontWeight: 600 }}>
-                    {scheme.subsidy[language] || scheme.subsidy.mr}
+                    {getSchemeSubsidy(scheme)}
                   </span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -119,10 +152,10 @@ export const SavedItemsModal = ({ isOpen, onClose, onSelectScheme, onSelectIdea 
               >
                 <div>
                   <h5 style={{ fontSize: "1rem", fontWeight: 700 }}>
-                    {idea.titles[language] || idea.titles.mr}
+                    {getIdeaTitle(idea)}
                   </h5>
                   <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
-                    भांडवल: {idea.investmentRange} | नफा: {idea.expectedMonthlyProfit}
+                    भांडवल: {getIdeaInvestment(idea)} | नफा: {getIdeaProfit(idea)}
                   </span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>

@@ -8,17 +8,28 @@ export const BusinessCard = ({ idea, onOpenDetails }) => {
   const { language, t } = useLanguage();
   const { isIdeaSaved, toggleSaveIdea } = useBookmarks();
 
-  const [customInvestment, setCustomInvestment] = useState(idea.minInvestment || 100000);
+  const title =
+    (typeof idea.titles === "object" && idea.titles ? (idea.titles[language] || idea.titles.mr || idea.titles.en) : null) ||
+    idea.title ||
+    "";
 
-  const title = idea.titles?.[language] || idea.titles?.mr || "";
-  const tagline = idea.tagline[language] || idea.tagline.mr || "";
+  const tagline =
+    (typeof idea.tagline === "object" && idea.tagline ? (idea.tagline[language] || idea.tagline.mr || idea.tagline.en) : null) ||
+    (typeof idea.tagline === "string" ? idea.tagline : "") ||
+    "";
+
+  const investmentRange = idea.investmentRange || idea.investment || "";
+  const expectedMonthlyProfit = idea.expectedMonthlyProfit || idea.expectedProfit || "";
+  const baseInvestment = idea.minInvestment || idea.investmentVal || 100000;
+  const margin = idea.defaultMarginPercent || idea.marginPercent || 25;
+
+  const [customInvestment, setCustomInvestment] = useState(baseInvestment);
 
   // Calculate dynamic estimated monthly net profit based on investment and margin
-  const margin = idea.defaultMarginPercent || 25;
   // Estimated monthly turnover is roughly 25-30% of capital, with margin applying to it
   const estimatedMonthlyProfitVal = Math.round((customInvestment * 0.45) * (margin / 100));
 
-  const audioContent = `${title}. ${tagline}. लागणारे भांडवल: ${idea.investmentRange}. अंदाजे मासिक नफा: ${idea.expectedMonthlyProfit}.`;
+  const audioContent = `${title}. ${tagline}. लागणारे भांडवल: ${investmentRange}. अंदाजे मासिक नफा: ${expectedMonthlyProfit}.`;
 
   const formatCurrency = (val) => {
     return new Intl.NumberFormat("en-IN", {
@@ -34,11 +45,16 @@ export const BusinessCard = ({ idea, onOpenDetails }) => {
         {/* Category Tag */}
         <div className="card-top-row">
           <span className="sector-tag">
-            {idea.category === "low"
-              ? "कमी भांडवल (< ₹५० हजार)"
-              : idea.category === "mid"
-                ? "मध्यम भांडवल (₹५० हजार - ₹२ लाख)"
-                : "मोठे भांडवल (₹२ लाख+)"}
+            {idea.categoryLabel ||
+              (idea.category === "agri"
+                ? "🌾 कृषी उद्योग"
+                : idea.category === "home"
+                  ? "🏡 गृहउद्योग"
+                  : idea.category === "digital"
+                    ? "💻 डिजिटल सेवा"
+                    : idea.category === "local"
+                      ? "🪵 स्थानिक संपत्ती"
+                      : "ग्रामीण उद्योग")}
           </span>
           <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--secondary-dark)" }}>
             मार्जिन: ~{margin}%
@@ -55,11 +71,11 @@ export const BusinessCard = ({ idea, onOpenDetails }) => {
         <div className="economics-bar">
           <div className="econ-item">
             <span>{t("investmentRequired")}:</span>
-            <strong>{idea.investmentRange}</strong>
+            <strong>{investmentRange}</strong>
           </div>
           <div className="econ-item profit">
             <span>{t("expectedMonthlyProfit")}:</span>
-            <strong>{idea.expectedMonthlyProfit}</strong>
+            <strong>{expectedMonthlyProfit}</strong>
           </div>
         </div>
 
@@ -75,8 +91,8 @@ export const BusinessCard = ({ idea, onOpenDetails }) => {
 
           <input
             type="range"
-            min={Math.round((idea.minInvestment || 50000) * 0.5)}
-            max={Math.round((idea.minInvestment || 100000) * 3)}
+            min={Math.round(baseInvestment * 0.5)}
+            max={Math.round(baseInvestment * 3)}
             step={10000}
             value={customInvestment}
             onChange={(e) => setCustomInvestment(Number(e.target.value))}

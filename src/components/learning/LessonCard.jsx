@@ -6,11 +6,11 @@ import { AudioButton } from "../common/AudioButton";
 export const LessonCard = ({ lesson }) => {
   const { language, t } = useLanguage();
 
-  const title = lesson.titles[language] || lesson.titles.mr;
-  const summary = lesson.shortSummary[language] || lesson.shortSummary.mr;
-  const audioScript = lesson.audioText[language] || lesson.audioText.mr;
-  const takeaways = lesson.takeaways[language] || lesson.takeaways.mr;
-  const proTip = lesson.proTip[language] || lesson.proTip.mr;
+  const title = (lesson.titles && (lesson.titles[language] || lesson.titles.mr || lesson.titles.en)) || lesson.title || "";
+  const summary = (lesson.shortSummary && (lesson.shortSummary[language] || lesson.shortSummary.mr || lesson.shortSummary.en)) || "";
+  const audioScript = (lesson.audioText && (lesson.audioText[language] || lesson.audioText.mr || lesson.audioText.en)) || "";
+  const takeaways = (lesson.takeaways && (lesson.takeaways[language] || lesson.takeaways.mr || lesson.takeaways.en)) || [];
+  const proTip = (lesson.proTip && (lesson.proTip[language] || lesson.proTip.mr || lesson.proTip.en)) || "";
 
   return (
     <div className="lesson-card">

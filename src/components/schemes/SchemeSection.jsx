@@ -25,16 +25,38 @@ export const SchemeSection = ({ searchQuery = "" }) => {
   // Filtered schemes based on category & search term
   const filteredSchemes = useMemo(() => {
     return schemesData.filter((scheme) => {
-      // Category filter
-      const matchesCategory = activeCategory === "all" || scheme.category === activeCategory;
+      // Category filter supporting multi-dimensional scheme classification
+      const matchesCategory =
+        activeCategory === "all" ||
+        scheme.category === activeCategory ||
+        (activeCategory === "agri" && (scheme.businessType === "agro" || scheme.businessType === "livestock" || scheme.category === "agri")) ||
+        (activeCategory === "women" && (scheme.beneficiary === "women" || scheme.beneficiary === "shg" || scheme.category === "women")) ||
+        (activeCategory === "youth" && (scheme.beneficiary === "youth" || scheme.category === "youth")) ||
+        (activeCategory === "micro" && (scheme.businessType === "manufacturing" || scheme.businessType === "service" || scheme.category === "micro"));
 
       // Search filter
       if (!searchQuery.trim()) return matchesCategory;
 
       const q = searchQuery.toLowerCase();
-      const name = (scheme.names[language] || scheme.names.mr).toLowerCase();
-      const simple = (scheme.inSimpleWords[language] || scheme.inSimpleWords.mr).toLowerCase();
-      const tagline = (scheme.tagline[language] || scheme.tagline.mr).toLowerCase();
+      const name = (
+        (typeof scheme.names === "object" && scheme.names ? (scheme.names[language] || scheme.names.mr || scheme.names.en) : null) ||
+        scheme.nativeName ||
+        scheme.name ||
+        ""
+      ).toLowerCase();
+
+      const simple = (
+        (typeof scheme.inSimpleWords === "object" && scheme.inSimpleWords ? (scheme.inSimpleWords[language] || scheme.inSimpleWords.mr || scheme.inSimpleWords.en) : scheme.inSimpleWords) ||
+        scheme.learnInYourLanguage ||
+        scheme.whoCanApply ||
+        ""
+      ).toLowerCase();
+
+      const tagline = (
+        (typeof scheme.tagline === "object" && scheme.tagline ? (scheme.tagline[language] || scheme.tagline.mr || scheme.tagline.en) : scheme.tagline) ||
+        scheme.shortDescription ||
+        ""
+      ).toLowerCase();
 
       const matchesSearch = name.includes(q) || simple.includes(q) || tagline.includes(q);
       return matchesCategory && matchesSearch;

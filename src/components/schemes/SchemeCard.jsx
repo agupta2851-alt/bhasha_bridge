@@ -8,10 +8,28 @@ export const SchemeCard = ({ scheme, onOpenDetails }) => {
   const { language, t } = useLanguage();
   const { isSchemeSaved, toggleSaveScheme } = useBookmarks();
 
-  const schemeTitle = scheme?.names?.[language] || scheme?.names?.mr || "Government Scheme";
-  const tagline = scheme?.tagline?.[language] || scheme?.tagline?.mr || "";
-  const subsidyText = scheme?.subsidy?.[language] || scheme?.subsidy?.mr || "";
-  const simpleWords = scheme?.inSimpleWords?.[language] || scheme?.inSimpleWords?.mr || "";
+  const schemeTitle =
+    (typeof scheme?.names === "object" && scheme?.names ? (scheme.names[language] || scheme.names.mr || scheme.names.en) : null) ||
+    (language === "en" ? scheme?.name : scheme?.nativeName) ||
+    scheme?.nativeName ||
+    scheme?.name ||
+    "शासकीय योजना";
+
+  const tagline =
+    (typeof scheme?.tagline === "object" && scheme?.tagline ? (scheme.tagline[language] || scheme.tagline.mr || scheme.tagline.en) : scheme?.tagline) ||
+    scheme?.shortDescription ||
+    "";
+
+  const subsidyText =
+    (typeof scheme?.subsidy === "object" && scheme?.subsidy ? (scheme.subsidy[language] || scheme.subsidy.mr || scheme.subsidy.en) : scheme?.subsidy) ||
+    (Array.isArray(scheme?.benefits) ? scheme.benefits[2] || scheme.benefits[0] : "थेट शासकीय अनुदान");
+
+  const simpleWords =
+    (typeof scheme?.inSimpleWords === "object" && scheme?.inSimpleWords ? (scheme.inSimpleWords[language] || scheme.inSimpleWords.mr || scheme.inSimpleWords.en) : scheme?.inSimpleWords) ||
+    scheme?.learnInYourLanguage ||
+    scheme?.whoCanApply ||
+    "";
+
   const audioContent = `${schemeTitle}. ${tagline}. ${subsidyText}. सोप्या शब्दात: ${simpleWords}`;
 
   return (

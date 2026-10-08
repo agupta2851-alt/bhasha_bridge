@@ -11,15 +11,47 @@ export const BusinessDetailModal = ({ idea, isOpen, onClose }) => {
 
   if (!idea) return null;
 
-  const title = idea.titles[language] || idea.titles.mr;
-  const tagline = idea.tagline[language] || idea.tagline.mr;
-  const overview = idea.overview[language] || idea.overview.mr;
-  const machines = idea.machinery[language] || idea.machinery.mr;
-  const rawMaterial = idea.rawMaterial[language] || idea.rawMaterial.mr;
-  const licenses = idea.licenses[language] || idea.licenses.mr;
-  const steps = idea.steps[language] || idea.steps.mr;
+  const title =
+    (typeof idea.titles === "object" && idea.titles ? (idea.titles[language] || idea.titles.mr || idea.titles.en) : null) ||
+    idea.title ||
+    "";
 
-  const audioContent = `${title}. भांडवल: ${idea.investmentRange}. मासिक नफा: ${idea.expectedMonthlyProfit}. माहिती: ${overview}. लागणारी यंत्रे: ${machines.join(", ")}. परवाने: ${licenses.join(", ")}.`;
+  const tagline =
+    (typeof idea.tagline === "object" && idea.tagline ? (idea.tagline[language] || idea.tagline.mr || idea.tagline.en) : null) ||
+    (typeof idea.tagline === "string" ? idea.tagline : "") ||
+    "";
+
+  const overview =
+    (typeof idea.overview === "object" && idea.overview ? (idea.overview[language] || idea.overview.mr || idea.overview.en) : null) ||
+    (typeof idea.overview === "string" ? idea.overview : "") ||
+    "";
+
+  const investmentText = idea.investmentRange || idea.investment || "";
+  const profitText = idea.expectedMonthlyProfit || idea.expectedProfit || "";
+
+  const machines =
+    (idea.machinery && (idea.machinery[language] || idea.machinery.mr)) ||
+    (Array.isArray(idea.machinery) ? idea.machinery : null) ||
+    (Array.isArray(idea.skillsRequired) ? idea.skillsRequired : []) ||
+    [];
+
+  const rawMaterial =
+    (idea.rawMaterial && (idea.rawMaterial[language] || idea.rawMaterial.mr)) ||
+    (typeof idea.rawMaterial === "string" ? idea.rawMaterial : null) ||
+    (Array.isArray(idea.potentialCustomers) ? idea.potentialCustomers.join(", ") : "स्थानिक शेतकरी व स्थानिक बाजारपेठेतून थेट खरेदी.");
+
+  const licenses =
+    (idea.licenses && (idea.licenses[language] || idea.licenses.mr)) ||
+    (Array.isArray(idea.licenses) ? idea.licenses : null) ||
+    (idea.relatedSchemes ? [idea.relatedSchemes, "उद्यम नोंदणी (Udyam MSME)", "स्थानिक ग्रामपंचायत ना-हरकत दाखला (NOC)"] : ["उद्यम नोंदणी (Udyam MSME)", "स्थानिक परवाना"]);
+
+  const steps =
+    (idea.steps && (idea.steps[language] || idea.steps.mr)) ||
+    (Array.isArray(idea.steps) ? idea.steps : null) ||
+    (Array.isArray(idea.howToStart) ? idea.howToStart : []) ||
+    [];
+
+  const audioContent = `${title}. भांडवल: ${investmentText}. मासिक नफा: ${profitText}. माहिती: ${overview}.`;
 
   return (
     <Modal
@@ -79,11 +111,11 @@ export const BusinessDetailModal = ({ idea, isOpen, onClose }) => {
       <div className="economics-bar" style={{ marginBottom: "20px" }}>
         <div className="econ-item">
           <span>{t("investmentRequired")}:</span>
-          <strong>{idea.investmentRange}</strong>
+          <strong>{investmentText}</strong>
         </div>
         <div className="econ-item profit">
           <span>{t("expectedMonthlyProfit")}:</span>
-          <strong>{idea.expectedMonthlyProfit}</strong>
+          <strong>{profitText}</strong>
         </div>
       </div>
 

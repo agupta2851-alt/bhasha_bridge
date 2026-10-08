@@ -11,14 +11,41 @@ export const SchemeDetailModal = ({ scheme, isOpen, onClose }) => {
 
   if (!scheme) return null;
 
-  const schemeTitle = scheme.names[language] || scheme.names.mr;
-  const subsidyText = scheme.subsidy[language] || scheme.subsidy.mr;
-  const simpleWords = scheme.inSimpleWords[language] || scheme.inSimpleWords.mr;
-  const eligibleList = scheme.whoIsEligible[language] || scheme.whoIsEligible.mr;
-  const docList = scheme.documents[language] || scheme.documents.mr;
-  const stepsList = scheme.howToApply[language] || scheme.howToApply.mr;
+  const schemeTitle =
+    (typeof scheme?.names === "object" && scheme?.names ? (scheme.names[language] || scheme.names.mr || scheme.names.en) : null) ||
+    (language === "en" ? scheme?.name : scheme?.nativeName) ||
+    scheme?.nativeName ||
+    scheme?.name ||
+    "शासकीय योजना";
 
-  const fullAudioNarration = `${schemeTitle}. ${subsidyText}. सोप्या शब्दात: ${simpleWords}. पात्रता: ${eligibleList.join(". ")}. लागणारी कागदपत्रे: ${docList.join(", ")}.`;
+  const subsidyText =
+    (typeof scheme?.subsidy === "object" && scheme?.subsidy ? (scheme.subsidy[language] || scheme.subsidy.mr || scheme.subsidy.en) : scheme?.subsidy) ||
+    (Array.isArray(scheme?.benefits) ? scheme.benefits[0] : "");
+
+  const simpleWords =
+    (typeof scheme?.inSimpleWords === "object" && scheme?.inSimpleWords ? (scheme.inSimpleWords[language] || scheme.inSimpleWords.mr || scheme.inSimpleWords.en) : scheme?.inSimpleWords) ||
+    scheme?.learnInYourLanguage ||
+    scheme?.whoCanApply ||
+    "";
+
+  const eligibleList =
+    (typeof scheme?.whoIsEligible === "object" && scheme?.whoIsEligible ? (scheme.whoIsEligible[language] || scheme.whoIsEligible.mr || scheme.whoIsEligible.en) : null) ||
+    (Array.isArray(scheme?.eligibility) ? scheme.eligibility : []) ||
+    [];
+
+  const docList =
+    (typeof scheme?.documents === "object" && scheme?.documents ? (scheme.documents[language] || scheme.documents.mr || scheme.documents.en) : null) ||
+    (Array.isArray(scheme?.requiredDocuments) ? scheme.requiredDocuments : []) ||
+    [];
+
+  const stepsList =
+    (typeof scheme?.howToApply === "object" && !Array.isArray(scheme?.howToApply) ? (scheme.howToApply[language] || scheme.howToApply.mr || scheme.howToApply.en) : null) ||
+    (Array.isArray(scheme?.howToApply) ? scheme.howToApply : []) ||
+    [];
+
+  const portalUrl = scheme?.portalUrl || scheme?.officialSourceUrl;
+
+  const fullAudioNarration = `${schemeTitle}. ${subsidyText}. सोप्या शब्दात: ${simpleWords}. पात्रता: ${Array.isArray(eligibleList) ? eligibleList.join(". ") : ""}. लागणारी कागदपत्रे: ${Array.isArray(docList) ? docList.join(", ") : ""}.`;
 
   const handlePrint = () => {
     window.print();
@@ -50,9 +77,9 @@ export const SchemeDetailModal = ({ scheme, isOpen, onClose }) => {
             <span>{t("printChecklist")}</span>
           </button>
 
-          {scheme.portalUrl && (
+          {portalUrl && (
             <a
-              href={scheme.portalUrl}
+              href={portalUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary"

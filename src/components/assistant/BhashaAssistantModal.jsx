@@ -158,7 +158,7 @@ export const BhashaAssistantModal = ({ isOpen, onClose }) => {
           <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--text-subtle)", whiteSpace: "nowrap" }}>
             💡 विचारा:
           </span>
-          {t("quickQuestions") &&
+          {Array.isArray(t("quickQuestions")) &&
             t("quickQuestions").map((q, idx) => (
               <button
                 key={idx}
